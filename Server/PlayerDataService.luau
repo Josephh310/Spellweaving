@@ -2,6 +2,7 @@ local PlayerData = {}
 
 --Dependancies
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 
 local ProfileStore = require(ReplicatedStorage.Library.ProfileStore)
@@ -11,6 +12,9 @@ local PlayerSaveTemplate = require(ReplicatedStorage.Shared.Data.PlayerSaveTempl
 
 --Types
 export type Profile = ProfileStore.Profile<typeof(PlayerSaveTemplate)>
+
+--Constants
+local MOCK_STORE_IN_STUDIO = true
 
 --Helper functions
 function ObservePlayerAdded(Player: Player)
@@ -64,6 +68,9 @@ end
 
 --Public functions
 function PlayerData.Start()
+	if MOCK_STORE_IN_STUDIO and RunService:IsStudio() then
+		PlayerData.DataStore = PlayerData.DataStore.Mock
+	end
 	Observers.observePlayer(ObservePlayerAdded)
 	ProfileStore.OnCriticalToggle:Connect(CriticalStatusChanged)
 end
