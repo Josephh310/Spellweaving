@@ -26,17 +26,8 @@ export type Profile = ProfileStore.Profile<typeof(PlayerStats.Template)>
 --Config
 local MOCK_STORE_IN_STUDIO = false
 
---Helper functions
-function CriticalStatusChanged(IsCritical: boolean)
-	if IsCritical == true then
-		print(`ProfileStore entered critical state`)
-	else
-		print(`ProfileStore critical state is over`)
-	end
-end
-
 --Private functions
-function PlayerData._initProfile(Player: Player, Profile: Profile)
+local function InitProfile(Player: Player, Profile: Profile)
 	Profile:Reconcile()
 	Profile.OnSessionEnd:Connect(function()
 		PlayerData.Profiles[Player] = nil
@@ -50,25 +41,53 @@ function PlayerData._initProfile(Player: Player, Profile: Profile)
 	end
 end
 
-function PlayerData._loadProfile(Player: Player)
+local function LoadProfile(Player: Player)
 	local ProfileKey = tostring(Player.UserId)
 	local NewProfile = PlayerData.DataStore:StartSessionAsync(ProfileKey)
 	if NewProfile == nil then
 		Player:Kick("Profile load failed, please rejoin.")
 		return;
 	end
-	PlayerData._initProfile(Player, NewProfile)
+	InitProfile(Player, NewProfile)
 end
 
-function PlayerData._removeProfile(Player: Player)
+local function RemoveProfile(Player: Player)
 	local PlayerProfile = PlayerData.Profiles[Player]
 	if PlayerProfile ~= nil then
 		PlayerProfile:EndSession()
 	end
 end
 
---Public functions
+local function CriticalStatusChanged(IsCritical: boolean)
+	if IsCritical == true then
+		print(`ProfileStore entered critical state`)
+	else
+		print(`ProfileStore critical state is over`)
+	end
+end
 
+local function CreateLeaderstats(Player: Players)
+	local leaderstats = Instance.new("Folder", Player)
+	leaderstats.Name = "leaderstats"
+	for Index, Leaderstat in PlayerStats.Leaderstats do
+		local LeaderstatValue = Instance.new("IntValue", leaderstats)
+		LeaderstatValue.Name = Leaderstat
+		LeaderstatValue.Value = PlayerData.GetValue(Player, {Leaderstat})
+	end
+end
+
+local function PlayerAdded(Player: Player)
+	print(`{Player} has joined the game.`)
+	LoadProfile(Player)
+	CreateLeaderstats(Player)
+end
+
+local function PlayerRemoved(Player: Player)
+	print(`{Player} has left the game.`)
+	RemoveProfile(Player)
+end
+
+--Public functions
 function PlayerData.GetProfile(Player: Player)
 	return PlayerData.Profiles[Player].Data
 end
@@ -85,6 +104,12 @@ function PlayerData.SetValue(Player: Player, Path: {string}, Value: any)
 		error(`Unable to set {table.concat(Path, "/")} to value {Value}`)
 	end
 	ReplicateSaveChange:FireClient(Player, Path, Value)
+	if #Path == 1 then
+		local leaderstat = Player.leaderstats:FindFirstChild(Path[1])
+		if leaderstat then
+			leaderstat.Value = Value
+		end
+	end
 	return true
 end
 
@@ -97,23 +122,17 @@ function PlayerData.ApplyChange(Player: Player, Path: {string}, ChangeCallback: 
 	end
 end
 
-function PlayerData.Start()
-	Observers.observePlayer(function(Player: Player)
-		print(`{Player} has joined the game.`)
-		PlayerData._loadProfile(Player)
-		return function(Reason: string)
-			print(`{Player} has left the game. Reason: {Reason}`)
-			PlayerData._removeProfile(Player)
-		end
-	end)
-end
-
 function PlayerData.Init()
 	if MOCK_STORE_IN_STUDIO and RunService:IsStudio() then
 		PlayerData.DataStore = PlayerData.DataStore.Mock
 	end
 	GetPlayerSave.OnServerInvoke = PlayerData.GetProfile
 	ProfileStore.OnCriticalToggle:Connect(CriticalStatusChanged)
+	for _, Player in Players:GetPlayers() do
+		PlayerAdded(Player)
+	end
+	Players.PlayerAdded:Connect(PlayerAdded)
+	Players.PlayerRemoving:Connect(PlayerRemoved)
 end
 
 return PlayerData

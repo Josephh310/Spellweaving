@@ -9,8 +9,8 @@ return {
 		Wands = {}
 	},
 	Leaderstats = {
-		Gems = true,
-		Kills = true,
-		Deaths = true
+		"Gems",
+		"Kills",
+		"Deaths"
 	}
 }
