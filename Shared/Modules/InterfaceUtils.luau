@@ -9,5 +9,4 @@ function InterfaceUtilities.MultiplyUdim2(_udim: UDim2, multiplier: number)
 	)
 end
 
-
 return InterfaceUtilities
