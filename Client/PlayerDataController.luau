@@ -13,52 +13,38 @@ local Remotes = ReplicatedStorage.Remotes
 local GetPlayerSave = Remotes.GetPlayerSave
 local ReplicateSaveChange = Remotes.ReplicateSaveChange
 
---Utiltiy functions
-local function LoadProfile()
-	local Profile = GetPlayerSave:InvokeServer()
-	for Index, Value in Profile do
-		if PlayerData.ChangedSignals[Index] then
-			PlayerData.ChangedSignals[Index]:Fire()
-		end
-	end
-end
-
 --Public functions
 function PlayerData.SetLocalValue(Path: {string}, Value: any)
-	local CurrentDirectory = PlayerData.Profile
-	for Index, DirectoryName in ipairs(Path) do
-		if Index == #Path then
-			CurrentDirectory[DirectoryName] = Value
-			if PlayerData.ChangedSignals[Path[1]] then
-				PlayerData.ChangedSignals[Path[1]]:Fire(Value)
-			end
-			return;
-		end
-		local NewDirectory = CurrentDirectory[DirectoryName]
-		if not NewDirectory then
-			error(`{DirectoryName} is not a valid member of {Path[Index-1]}`)
-		end
-		CurrentDirectory = NewDirectory
+	local Success = PlayerDataUtils.SetNestedValue(PlayerData.Save, Path, Value)
+	if Success ~= true then
+		error(`Unable to set {table.concat(Path, "/")} to value {Value}`)
 	end
+	local PrimaryPath = Path[1]
+	if PlayerData.ChangedSignals[PrimaryPath] then
+		PlayerData.ChangedSignals[PrimaryPath]:Fire(Value)
+	end
+	return true
 end
 
-function PlayerData.GetValueChangedSignal(ValueName: string): Signal.Signal<any>
+function PlayerData.GetLocalValue(Path: {string}, Value: any)
+	return PlayerDataUtils.GetNestedValue(PlayerData.Save, Path, Value)
+end
+
+function PlayerData.ConnectToValueChanged(ValueName: string, Callback: () -> ()): Signal.Connection
 	if not PlayerData.ChangedSignals[ValueName] then
 		PlayerData.ChangedSignals[ValueName] = Signal.new()
 	end
-	task.defer(function()
-		if PlayerData.Profile[ValueName] then
-			PlayerData.ChangedSignals[ValueName]:Fire(PlayerData.Profile[ValueName])
-		end
-	end)
-	return PlayerData.ChangedSignals[ValueName]
+	if Callback then
+		Callback(PlayerData.Save[ValueName])
+		return PlayerData.ChangedSignals[ValueName]:Connect(Callback)
+	end
 end
 
 function PlayerData.Init()
-	PlayerData.ChangedSignals = {}
 	repeat task.wait() until Player:GetAttribute("ProfileReady") == true -- Yield until the player's save is ready
-	PlayerData.Profile = LoadProfile()
+	PlayerData.Save = GetPlayerSave:InvokeServer()
 	ReplicateSaveChange.OnClientEvent:Connect(PlayerData.SetLocalValue)
+	PlayerData.ChangedSignals = {}
 end
 
 return PlayerData

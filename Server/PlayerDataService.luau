@@ -27,15 +27,6 @@ export type Profile = ProfileStore.Profile<typeof(PlayerSaveTemplate)>
 local MOCK_STORE_IN_STUDIO = false
 
 --Helper functions
-function ObservePlayerAdded(Player: Player)
-	print(`{Player} has joined the game.`)
-	PlayerData._loadProfile(Player)
-	return function(Reason: string)
-		print(`{Player} has left the game. Reason: {Reason}`)
-		PlayerData._removeProfile(Player)
-	end
-end
-
 function CriticalStatusChanged(IsCritical: boolean)
 	if IsCritical == true then
 		print(`ProfileStore entered critical state`)
@@ -52,7 +43,6 @@ function PlayerData._initProfile(Player: Player, Profile: Profile)
 		Player:Kick("Profile session ended, please rejoin.")
 	end)
 	if Player.Parent == Players then
-		Profile.Changed = Signal.new()
 		PlayerData.Profiles[Player] = Profile
 		Player:SetAttribute("ProfileReady", true)
 	else
@@ -73,45 +63,29 @@ end
 function PlayerData._removeProfile(Player: Player)
 	local PlayerProfile = PlayerData.Profiles[Player]
 	if PlayerProfile ~= nil then
-		PlayerProfile.Changed:Destroy()
 		PlayerProfile:EndSession()
 	end
 end
 
 --Public functions
 
-function PlayerData.GetProfile(Player: Player, test)
+function PlayerData.GetProfile(Player: Player)
 	return PlayerData.Profiles[Player].Data
 end
 
 function PlayerData.GetValue(Player: Player, Path: {string})
-	local CurrentDirectory = PlayerData.GetProfile(Player)
-	for Index, DirectoryName in ipairs(Path) do
-		local NewDirectory = CurrentDirectory[DirectoryName]
-		if not NewDirectory then
-			error(`{DirectoryName} is not a valid member of {Path[Index-1]}`)
-		end
-		CurrentDirectory = NewDirectory
-	end
-	return CurrentDirectory
+	local PlayerSave = PlayerData.GetProfile(Player)
+	return PlayerDataUtils.GetNestedValue(PlayerSave, Path)
 end
 
 function PlayerData.SetValue(Player: Player, Path: {string}, Value: any)
-	local CurrentDirectory = PlayerData.GetProfile(Player)
-	local ChangedSignal = PlayerData.Profiles[Player].Changed
-	for Index, DirectoryName in ipairs(Path) do
-		if Index == #Path then
-			CurrentDirectory[DirectoryName] = Value
-			ReplicateSaveChange:FireClient(Player, Path, Value)
-			ChangedSignal:Fire(Path, Value)
-			return;
-		end
-		local NewDirectory = CurrentDirectory[DirectoryName]
-		if not NewDirectory then
-			error(`{DirectoryName} is not a valid member of {Path[Index-1]}`)
-		end
-		CurrentDirectory = NewDirectory
+	local PlayerSave = PlayerData.GetProfile(Player)
+	local Success = PlayerDataUtils.SetNestedValue(PlayerSave, Path, Value)
+	if Success ~= true then
+		error(`Unable to set {table.concat(Path, "/")} to value {Value}`)
 	end
+	ReplicateSaveChange:FireClient(Player, Path, Value)
+	return true
 end
 
 function PlayerData.ApplyChange(Player: Player, Path: {string}, ChangeCallback: () -> (), ...)
@@ -124,8 +98,14 @@ function PlayerData.ApplyChange(Player: Player, Path: {string}, ChangeCallback: 
 end
 
 function PlayerData.Start()
-	Observers.observePlayer(ObservePlayerAdded)
-	ProfileStore.OnCriticalToggle:Connect(CriticalStatusChanged)
+	Observers.observePlayer(function(Player: Player)
+		print(`{Player} has joined the game.`)
+		PlayerData._loadProfile(Player)
+		return function(Reason: string)
+			print(`{Player} has left the game. Reason: {Reason}`)
+			PlayerData._removeProfile(Player)
+		end
+	end)
 end
 
 function PlayerData.Init()
@@ -133,6 +113,7 @@ function PlayerData.Init()
 		PlayerData.DataStore = PlayerData.DataStore.Mock
 	end
 	GetPlayerSave.OnServerInvoke = PlayerData.GetProfile
+	ProfileStore.OnCriticalToggle:Connect(CriticalStatusChanged)
 end
 
 return PlayerData
