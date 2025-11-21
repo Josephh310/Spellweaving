@@ -15,7 +15,7 @@ local ReplicateSaveChange = Remotes.ReplicateSaveChange
 
 --Public functions
 function PlayerData.SetLocalValue(Path: {string}, Value: any)
-	local Success = PlayerDataUtils.SetNestedValue(PlayerData.Save, Path, Value)
+	local Success = PlayerDataUtils.SetNestedValue(PlayerData.Data, Path, Value)
 	if Success ~= true then
 		error(`Unable to set {table.concat(Path, "/")} to value {Value}`)
 	end
@@ -27,7 +27,7 @@ function PlayerData.SetLocalValue(Path: {string}, Value: any)
 end
 
 function PlayerData.GetLocalValue(Path: {string}, Value: any)
-	return PlayerDataUtils.GetNestedValue(PlayerData.Save, Path, Value)
+	return PlayerDataUtils.GetNestedValue(PlayerData.Data, Path, Value)
 end
 
 function PlayerData.ConnectToValueChanged(ValueName: string, Callback: () -> ()): Signal.Connection
@@ -35,14 +35,14 @@ function PlayerData.ConnectToValueChanged(ValueName: string, Callback: () -> ())
 		PlayerData.ChangedSignals[ValueName] = Signal.new()
 	end
 	if Callback then
-		Callback(PlayerData.Save[ValueName])
+		Callback(PlayerData.Data[ValueName])
 		return PlayerData.ChangedSignals[ValueName]:Connect(Callback)
 	end
 end
 
 function PlayerData.Init()
 	repeat task.wait() until Player:GetAttribute("ProfileReady") == true -- Yield until the player's save is ready
-	PlayerData.Save = GetPlayerSave:InvokeServer()
+	PlayerData.Data = GetPlayerSave:InvokeServer()
 	ReplicateSaveChange.OnClientEvent:Connect(PlayerData.SetLocalValue)
 	PlayerData.ChangedSignals = {}
 end
