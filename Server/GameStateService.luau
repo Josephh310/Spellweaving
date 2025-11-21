@@ -8,21 +8,21 @@ function GameState.TransitionStates(CurrentState: number)
 	local CurrentStateInfo = GameStateUtils.StateInfo[CurrentState]
 	local NextState = CurrentStateInfo.NextState
 	local NextStateInfo = GameStateUtils.StateInfo[NextState]
-	game:SetAttribute("State", NextState)
-	game:SetAttribute("StateTimer", NextStateInfo.Duration)
+	workspace:SetAttribute("State", NextState)
+	workspace:SetAttribute("StateTimer", NextStateInfo.Duration)
 	GameState.StateChanged:Fire(NextState)
 end
 
 function GameState.DecreaseStateTimer(CurrentState: number, CurrentTime: number)
 	local NewTime = CurrentTime - 1
-	game:SetAttribute("StateTimer", NewTime)
+	workspace:SetAttribute("StateTimer", NewTime)
 	GameState.StateTick:Fire(CurrentState, NewTime)
 end
 
 function GameState.Start()
 	while task.wait(1) do
-		local CurrentState = game:GetAttribute("State")
-		local CurrentTimer = game:GetAttribute("StateTimer")
+		local CurrentState = workspace:GetAttribute("State")
+		local CurrentTimer = workspace:GetAttribute("StateTimer")
 		if (CurrentTimer - 1) < 0 then
 			GameState.TransitionStates(CurrentState)
 		else
@@ -35,8 +35,8 @@ function GameState.Init()
 	GameState.StateChanged = Signal.new()
 	GameState.StateTick = Signal.new()
 	local DefaultState = GameStateUtils.DefaultState
-	game:SetAttribute("State", DefaultState)
-	game:SetAttribute("StateTimer", GameStateUtils.StateInfo[DefaultState].Duration)
+	workspace:SetAttribute("State", DefaultState)
+	workspace:SetAttribute("StateTimer", GameStateUtils.StateInfo[DefaultState].Duration)
 end
 
 return GameState
