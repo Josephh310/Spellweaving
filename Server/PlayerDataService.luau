@@ -8,7 +8,7 @@ local Players = game:GetService("Players")
 local ProfileStore = require(ReplicatedStorage.Library.ProfileStore)
 local Observers = require(ReplicatedStorage.Library.Observers)
 local Signal = require(ReplicatedStorage.Library.Signal)
-local PlayerSaveTemplate = require(ReplicatedStorage.Shared.Data.PlayerSaveTemplate)
+local PlayerStats = require(ReplicatedStorage.Shared.Data.PlayerStats)
 local PlayerDataUtils = require(ReplicatedStorage.Shared.Modules.PlayerDataUtils)
 
 --Remotes
@@ -17,11 +17,11 @@ local GetPlayerSave = Remotes.GetPlayerSave
 local ReplicateSaveChange = Remotes.ReplicateSaveChange
 
 --Vars
-PlayerData.DataStore = ProfileStore.New("DataStore", PlayerSaveTemplate)
+PlayerData.DataStore = ProfileStore.New("DataStore", PlayerStats.Template)
 PlayerData.Profiles = {} :: {[Player]: Profile}
 
 --Types
-export type Profile = ProfileStore.Profile<typeof(PlayerSaveTemplate)>
+export type Profile = ProfileStore.Profile<typeof(PlayerStats.Template)>
 
 --Config
 local MOCK_STORE_IN_STUDIO = false
