@@ -20,7 +20,6 @@ export type Profile = ProfileStore.Profile<typeof(PlayerSaveTemplate)>
 --Config
 local MOCK_STORE_IN_STUDIO = false
 
-
 --Helper functions
 function ObservePlayerAdded(Player: Player)
 	print(`{Player} has joined the game.`)
@@ -73,16 +72,45 @@ end
 
 --Public functions
 
-function PlayerData.ApplyChange(Player: Player, ChangeCallback: (Profile) -> (), ...)
-	local PlayerProfile = PlayerData.Profiles[Player]
-	if PlayerProfile and PlayerProfile:IsActive() then
-		ChangeCallback(PlayerProfile, ...)
-	end
-end
-
 function PlayerData.GetProfile(Player: Player)
 	if Player then
 		return PlayerData.Profiles[Player]
+	end
+end
+
+function PlayerData.GetValue(Player: Player, Path: {string})
+	local CurrentDirectory = PlayerData.GetProfile(Player)
+	for Index, DirectoryName in ipairs(Path) do
+		local NewDirectory = CurrentDirectory[DirectoryName]
+		if not NewDirectory then
+			error(`{DirectoryName} is not a valid member of {Path[Index-1]}`)
+		end
+		CurrentDirectory = NewDirectory
+	end
+	return CurrentDirectory
+end
+
+function PlayerData.SetValue(Player: Player, Path: {string}, Value: any)
+	local CurrentDirectory = PlayerData.GetProfile(Player)
+	for Index, DirectoryName in ipairs(Path) do
+		if Index == #Path then
+			CurrentDirectory[DirectoryName] = Value
+			return;
+		end
+		local NewDirectory = CurrentDirectory[DirectoryName]
+		if not NewDirectory then
+			error(`{DirectoryName} is not a valid member of {Path[Index-1]}`)
+		end
+		CurrentDirectory = NewDirectory
+	end
+end
+
+function PlayerData.ApplyChange(Player: Player, Path: {string}, ChangeCallback: () -> (), ...)
+	local PlayerProfile = PlayerData.Profiles[Player]
+	if PlayerProfile and PlayerProfile:IsActive() then
+		local PathValue = PlayerData.GetValue(Player, Path)
+		local NewValue = ChangeCallback(PathValue, ...)
+		PlayerData.SetValue(Player, Path, NewValue)
 	end
 end
 
