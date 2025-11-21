@@ -10,6 +10,11 @@ local Observers = require(ReplicatedStorage.Library.Observers)
 local Signal = require(ReplicatedStorage.Library.Signal)
 local PlayerSaveTemplate = require(ReplicatedStorage.Shared.Data.PlayerSaveTemplate)
 
+--Remotes
+local Remotes = ReplicatedStorage.Remotes
+local GetPlayerSave = Remotes.GetPlayerSave
+local ReplicateSaveChange = Remotes.ReplicateSaveChange
+
 --Vars
 PlayerData.DataStore = ProfileStore.New("DataStore", PlayerSaveTemplate)
 PlayerData.Profiles = {} :: {[Player]: Profile}
@@ -46,8 +51,9 @@ function PlayerData._initProfile(Player: Player, Profile: Profile)
 		Player:Kick("Profile session ended, please rejoin.")
 	end)
 	if Player.Parent == Players then
+		Profile.Changed = Signal.new()
 		PlayerData.Profiles[Player] = Profile
-		print(`Profile loaded for {Player}!`)
+		Player:SetAttribute("ProfileReady", true)
 	else
 		Profile:EndSession()
 	end
@@ -66,16 +72,15 @@ end
 function PlayerData._removeProfile(Player: Player)
 	local PlayerProfile = PlayerData.Profiles[Player]
 	if PlayerProfile ~= nil then
+		PlayerProfile.Changed:Destroy()
 		PlayerProfile:EndSession()
 	end
 end
 
 --Public functions
 
-function PlayerData.GetProfile(Player: Player)
-	if Player then
-		return PlayerData.Profiles[Player]
-	end
+function PlayerData.GetProfile(Player: Player, test)
+	return PlayerData.Profiles[Player].Data
 end
 
 function PlayerData.GetValue(Player: Player, Path: {string})
@@ -92,9 +97,12 @@ end
 
 function PlayerData.SetValue(Player: Player, Path: {string}, Value: any)
 	local CurrentDirectory = PlayerData.GetProfile(Player)
+	local ChangedSignal = PlayerData.Profiles[Player].Changed
 	for Index, DirectoryName in ipairs(Path) do
 		if Index == #Path then
 			CurrentDirectory[DirectoryName] = Value
+			ReplicateSaveChange:FireClient(Player, Path, Value)
+			ChangedSignal:Fire(Path, Value)
 			return;
 		end
 		local NewDirectory = CurrentDirectory[DirectoryName]
@@ -115,11 +123,15 @@ function PlayerData.ApplyChange(Player: Player, Path: {string}, ChangeCallback: 
 end
 
 function PlayerData.Start()
+	Observers.observePlayer(ObservePlayerAdded)
+	ProfileStore.OnCriticalToggle:Connect(CriticalStatusChanged)
+end
+
+function PlayerData.Init()
 	if MOCK_STORE_IN_STUDIO and RunService:IsStudio() then
 		PlayerData.DataStore = PlayerData.DataStore.Mock
 	end
-	Observers.observePlayer(ObservePlayerAdded)
-	ProfileStore.OnCriticalToggle:Connect(CriticalStatusChanged)
+	GetPlayerSave.OnServerInvoke = PlayerData.GetProfile
 end
 
 return PlayerData
