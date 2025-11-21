@@ -10,11 +10,16 @@ local Observers = require(ReplicatedStorage.Library.Observers)
 local Signal = require(ReplicatedStorage.Library.Signal)
 local PlayerSaveTemplate = require(ReplicatedStorage.Shared.Data.PlayerSaveTemplate)
 
+--Vars
+PlayerData.DataStore = ProfileStore.New("DataStore", PlayerSaveTemplate)
+PlayerData.Profiles = {} :: {[Player]: Profile}
+
 --Types
 export type Profile = ProfileStore.Profile<typeof(PlayerSaveTemplate)>
 
---Constants
-local MOCK_STORE_IN_STUDIO = true
+--Config
+local MOCK_STORE_IN_STUDIO = false
+
 
 --Helper functions
 function ObservePlayerAdded(Player: Player)
@@ -67,17 +72,26 @@ function PlayerData._removeProfile(Player: Player)
 end
 
 --Public functions
+
+function PlayerData.ApplyChange(Player: Player, ChangeCallback: (Profile) -> (), ...)
+	local PlayerProfile = PlayerData.Profiles[Player]
+	if PlayerProfile and PlayerProfile:IsActive() then
+		ChangeCallback(PlayerProfile, ...)
+	end
+end
+
+function PlayerData.GetProfile(Player: Player)
+	if Player then
+		return PlayerData.Profiles[Player]
+	end
+end
+
 function PlayerData.Start()
 	if MOCK_STORE_IN_STUDIO and RunService:IsStudio() then
 		PlayerData.DataStore = PlayerData.DataStore.Mock
 	end
 	Observers.observePlayer(ObservePlayerAdded)
 	ProfileStore.OnCriticalToggle:Connect(CriticalStatusChanged)
-end
-
-function PlayerData.Init()
-	PlayerData.DataStore = ProfileStore.New("DataStore", PlayerSaveTemplate)
-	PlayerData.Profiles = {} :: {[Player]: Profile}
 end
 
 return PlayerData
