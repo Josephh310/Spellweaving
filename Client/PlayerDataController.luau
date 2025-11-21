@@ -1,5 +1,3 @@
 local PlayerData = {}
 
-
-
 return PlayerData
