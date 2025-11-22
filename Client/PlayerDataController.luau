@@ -45,6 +45,7 @@ function PlayerData.Init()
 	PlayerData.Data = GetPlayerSave:InvokeServer()
 	ReplicateSaveChange.OnClientEvent:Connect(PlayerData.SetLocalValue)
 	PlayerData.ChangedSignals = {}
+	PlayerData.Ready = true
 end
 
 return PlayerData
