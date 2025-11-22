@@ -1,7 +1,7 @@
 local GameState = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local GameStateUtils = require(ReplicatedStorage.Shared.Modules.GameStateUtils)
+local GameStateUtils = require(ReplicatedStorage.Shared.Utilities.GameStateUtils)
 local Signal = require(ReplicatedStorage.Library.Signal)
 
 function GameState.TransitionStates(CurrentState: number)

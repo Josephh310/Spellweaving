@@ -9,7 +9,7 @@ local ProfileStore = require(ReplicatedStorage.Library.ProfileStore)
 local Observers = require(ReplicatedStorage.Library.Observers)
 local Signal = require(ReplicatedStorage.Library.Signal)
 local PlayerStats = require(ReplicatedStorage.Shared.Data.PlayerStats)
-local PlayerDataUtils = require(ReplicatedStorage.Shared.Modules.PlayerDataUtils)
+local PlayerDataUtils = require(ReplicatedStorage.Shared.Utilities.PlayerDataUtils)
 
 --Remotes
 local Remotes = ReplicatedStorage.Remotes

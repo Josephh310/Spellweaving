@@ -9,4 +9,16 @@ function InterfaceUtilities.MultiplyUdim2(_udim: UDim2, multiplier: number)
 	)
 end
 
+function InterfaceUtilities.FormatWithCommas(num: number)
+	local formatted = tostring(num)
+	while true do
+		local updated, count = formatted:gsub("^(-?%d+)(%d%d%d)", "%1,%2")
+		formatted = updated
+		if count == 0 then
+			break
+		end
+	end
+	return formatted
+end
+
 return InterfaceUtilities

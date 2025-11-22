@@ -5,6 +5,11 @@ local StateEnums = {
 	["Game"] = 2,
 }
 
+local GameStates = {
+	[1] = "Intermission",
+	[2] = "Game"
+}
+
 return {
 	DefaultState = StateEnums.Intermission,
 	StateInfo = {
@@ -18,4 +23,5 @@ return {
 		}
 	},
 	StateEnums = StateEnums,
+	GameStates = GameStates,
 }
