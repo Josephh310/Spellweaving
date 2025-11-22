@@ -9,7 +9,7 @@ function SharedUI.Start()
 end
 
 function SharedUI.Init()
-
+	
 end
 
 return SharedUI
