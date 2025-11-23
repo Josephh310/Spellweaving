@@ -32,7 +32,6 @@ local function ObserveCurrentScreen(Value: string)
 		LobbyUI.PotionsButton:Enable()
 		LobbyUI.GemsButton:Enable()
 		LobbyUI.ShardsButton:Enable()
-		LobbyUI.PlayButton:Enable()
 	else
 		LobbyScreen.Enabled = false
 		LobbyUI.EquipmentButton:Disable()
@@ -40,7 +39,6 @@ local function ObserveCurrentScreen(Value: string)
 		LobbyUI.PotionsButton:Disable()
 		LobbyUI.GemsButton:Disable()
 		LobbyUI.ShardsButton:Disable()
-		LobbyUI.PlayButton:Disable()
 	end
 end
 

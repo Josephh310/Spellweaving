@@ -109,10 +109,18 @@ function Button.Destroy(self: Button)
 end
 
 function Button.Disable(self: Button)
-	self._mouseEnterConnection:Disconnect()
-	self._mouseLeaveConnection:Disconnect()
-	self._mouseDownConnection:Disconnect()
-	self._mouseUpConnection:Disconnect()
+	if self._mouseEnterConnection then 
+		self._mouseEnterConnection:Disconnect()
+	end
+	if self._mouseLeaveConnection then 
+		self._mouseLeaveConnection:Disconnect()
+	end
+	if self._mouseDownConnection then 
+		self._mouseDownConnection:Disconnect()
+	end
+	if self._mouseUpConnection then 
+		self._mouseUpConnection:Disconnect()
+	end
 end
 
 function Button.Enable(self: Button)
