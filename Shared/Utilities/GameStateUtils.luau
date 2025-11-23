@@ -14,7 +14,7 @@ return {
 	DefaultState = StateEnums.Intermission,
 	StateInfo = {
 		[StateEnums.Intermission] = {
-			Duration = 15,
+			Duration = 30,
 			NextState = StateEnums.Game,
 		},
 		[StateEnums.Game] = {
