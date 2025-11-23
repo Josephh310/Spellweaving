@@ -5,6 +5,7 @@ Button.__className = "Button"
 --Dependancies
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
+local SoundEffects = ReplicatedStorage.Assets.SoundEffects
 local InterfaceUtil = require(ReplicatedStorage.Shared.Utilities.InterfaceUtils)
 
 --Types
@@ -13,6 +14,7 @@ export type ButtonSettings = {
 	AnimationEnabled: boolean,
 	AnimationSpeed: number,
 	AutoButtonColor: boolean,
+	SoundEnabled: boolean,
 	OnPressed: () -> (),
 	OnReleased: () -> (),
 }
@@ -28,6 +30,12 @@ end
 function Button._playAnimation(self: Button, tween: Tween)
 	if self.AnimationEnabled ~= false and tween ~= nil then
 		tween:Play()
+	end
+end
+
+function Button._playSound(self: Button, Sound: Sound)
+	if self.SoundEnabled ~= false then
+		Sound:Play()
 	end
 end
 
@@ -58,6 +66,7 @@ function Button._onMouseDown(self: Button)
 	-- Animation
 	self:_playAnimation(self._mouseDownTween)
 	self:_changeColor(0.8)
+	self:_playSound(SoundEffects.ButtonCompress)
 	-- Callback
 	if self.OnPressed then 
 		self:OnPressed() 
@@ -68,6 +77,7 @@ function Button._onMouseUp(self: Button)
 	-- Animation
 	self:_playAnimation(self._mouseUpTween)
 	self:_changeColor(1)
+	self:_playSound(SoundEffects.ButtonDecompress)
 	-- Callback
 	if self.OnReleased then 
 		self:OnReleased() 
@@ -124,6 +134,7 @@ function Button.new(config: ButtonSettings)
 	self.AnimationEnabled = config.AnimationEnabled
 	self.AnimationSpeed = config.AnimationSpeed or 0.1
 	self.AutoButtonColor = config.AutoButtonColor
+	self.SoundEnabled = config.SoundEnabled
 	self.OnPressed = config.OnPressed
 	self.OnReleased = config.OnReleased
 	--Constants
