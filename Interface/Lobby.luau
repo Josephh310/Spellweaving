@@ -5,9 +5,11 @@ local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local PlayerDataController = require(ReplicatedFirst.Client.PlayerDataController)
 local InterfaceUtils = require(ReplicatedStorage.Shared.Utilities.InterfaceUtils)
+local Observers = require(ReplicatedStorage.Library.Observers)
 
 --Constants
 local GuiDirectory = script.Parent.Parent.ScreenGuis
+local ValuesDirectory = script.Parent.Parent.Values
 local LobbyScreen = GuiDirectory.LobbyUI
 local GemsContainer = LobbyScreen.LeftContainer.Gems
 local ShardsContainer = LobbyScreen.LeftContainer.Shards
@@ -21,6 +23,14 @@ local function SetShardsDisplay(Value: number)
 	ShardsContainer.ShardsDisplay.Amount.Text = InterfaceUtils.FormatWithCommas(Value)
 end
 
+local function ObserveCurrentScreen(Value: string)
+	if Value == "Lobby" then
+		LobbyScreen.Enabled = true
+	else
+		LobbyScreen.Enabled = false
+	end
+end
+
 --Init functions
 function LobbyUI.Start()
 	PlayerDataController.ConnectToValueChanged("Gems", SetGemDisplay)
@@ -28,7 +38,7 @@ function LobbyUI.Start()
 end
 
 function LobbyUI.Init()
-	warn("Lobby UI Initialized")
+	Observers.observeProperty(ValuesDirectory.CurrentScreen, "Value", ObserveCurrentScreen)
 end
 
 return LobbyUI
