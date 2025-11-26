@@ -33,8 +33,18 @@ function Button._playAnimation(self: Button, tween: Tween)
 	end
 end
 
-function Button._playSound(self: Button, Sound: Sound)
+function Button._playSound(self: Button, Sound: Sound, WaitForCompletion: {Sound})
 	if self.SoundEnabled ~= false then
+		if WaitForCompletion ~= nil then
+			for _, _Sound in WaitForCompletion do
+				if not Sound:IsA("Sound") then
+					return;
+				end
+				if Sound.Playing == true then
+					Sound:GetPropertyChangedSignal("Playing"):Wait()
+				end
+			end
+		end
 		Sound:Play()
 	end
 end
@@ -77,7 +87,7 @@ function Button._onMouseUp(self: Button)
 	-- Animation
 	self:_playAnimation(self._mouseUpTween)
 	self:_changeColor(1)
-	self:_playSound(SoundEffects.ButtonDecompress)
+	self:_playSound(SoundEffects.ButtonDecompress, {SoundEffects.ButtonCompress})
 	-- Callback
 	if self.OnReleased then 
 		self:OnReleased() 
