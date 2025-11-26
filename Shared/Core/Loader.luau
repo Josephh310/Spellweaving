@@ -5,11 +5,11 @@ function Loader.LoadDirectory(Directory: Instance, CurrentModules:{}?)
 	for _, NewDirectory in Directory:GetChildren() do
 		if NewDirectory:IsA("ModuleScript") then
 			local Source = require(NewDirectory)
-			if Source.Enabled ~= false then
-				CurrentModules[NewDirectory.Name] = require(NewDirectory)
-			else
+			if typeof(Source) == "table" and Source.Enabled == false then
 				warn(`{NewDirectory.Name} is disabled.`)
+				continue
 			end
+			CurrentModules[NewDirectory.Name] = require(NewDirectory)
 		else
 			Loader.LoadDirectory(NewDirectory, CurrentModules)
 		end

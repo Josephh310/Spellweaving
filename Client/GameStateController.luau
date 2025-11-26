@@ -1,4 +1,4 @@
-local GameState = {}
+local GameStateController = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
@@ -19,28 +19,28 @@ local StateFunctions = {
 }
 
 local function ObserveState(CurrentState: number)
-	GameState.CurrentState = CurrentState
-	GameState.StateChanged:Fire(CurrentState)
+	GameStateController.CurrentState = CurrentState
+	GameStateController.StateChanged:Fire(CurrentState)
 	if StateFunctions[CurrentState] then
 		StateFunctions[CurrentState]()
 	end
 end
 
 local function ObserveTimer(CurrentTime: number)
-	GameState.CurrentTime = CurrentTime
-	GameState.StateTick:Fire(GameState.CurrentState, CurrentTime)
+	GameStateController.CurrentTime = CurrentTime
+	GameStateController.StateTick:Fire(GameStateController.CurrentState, CurrentTime)
 end
 
-function GameState.Start()
+function GameStateController.Start()
 	Observers.observeAttribute(workspace, "State", ObserveState)
 	Observers.observeAttribute(workspace, "StateTimer", ObserveTimer)
 end
 
-function GameState.Init()
-	GameState.CurrentState = ""
-	GameState.CurrentTime = ""
-	GameState.StateChanged = Signal.new()
-	GameState.StateTick = Signal.new()
+function GameStateController.Init()
+	GameStateController.CurrentState = ""
+	GameStateController.CurrentTime = ""
+	GameStateController.StateChanged = Signal.new()
+	GameStateController.StateTick = Signal.new()
 end
 
-return GameState
+return GameStateController

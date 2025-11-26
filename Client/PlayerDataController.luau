@@ -1,4 +1,4 @@
-local PlayerData = {}
+local PlayerDataController = {}
 
 --Dependancies
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -14,40 +14,40 @@ local GetPlayerSave = Remotes.GetPlayerSave
 local ReplicateSaveChange = Remotes.ReplicateSaveChange
 
 --Public functions
-function PlayerData.SetLocalValue(Path: {string}, Value: any)
-	local Success = PlayerDataUtils.SetNestedValue(PlayerData.Data, Path, Value)
+function PlayerDataController.SetLocalValue(Path: {string}, Value: any)
+	local Success = PlayerDataUtils.SetNestedValue(PlayerDataController.Data, Path, Value)
 	if Success ~= true then
 		error(`Unable to set {table.concat(Path, "/")} to value {Value}`)
 	end
 	local PrimaryPath = Path[1]
-	if PlayerData.ChangedSignals[PrimaryPath] then
-		PlayerData.ChangedSignals[PrimaryPath]:Fire(Value)
+	if PlayerDataController.ChangedSignals[PrimaryPath] then
+		PlayerDataController.ChangedSignals[PrimaryPath]:Fire(Value)
 	end
 	return true
 end
 
-function PlayerData.GetLocalValue(Path: {string}, Value: any)
-	return PlayerDataUtils.GetNestedValue(PlayerData.Data, Path, Value)
+function PlayerDataController.GetLocalValue(Path: {string}, Value: any)
+	return PlayerDataUtils.GetNestedValue(PlayerDataController.Data, Path, Value)
 end
 
-function PlayerData.ConnectToValueChanged(ValueName: string, Callback: () -> ()): Signal.Connection
-	if not PlayerData.ChangedSignals[ValueName] then
-		PlayerData.ChangedSignals[ValueName] = Signal.new()
+function PlayerDataController.ConnectToValueChanged(ValueName: string, Callback: () -> ()): Signal.Connection
+	if not PlayerDataController.ChangedSignals[ValueName] then
+		PlayerDataController.ChangedSignals[ValueName] = Signal.new()
 	end
 	if Callback then
-		Callback(PlayerData.Data[ValueName])
-		return PlayerData.ChangedSignals[ValueName]:Connect(Callback)
+		Callback(PlayerDataController.Data[ValueName])
+		return PlayerDataController.ChangedSignals[ValueName]:Connect(Callback)
 	end
 end
 
-function PlayerData.Init()
+function PlayerDataController.Init()
 	if Player:GetAttribute("ProfileReady") ~= true then
 		Player:GetAttributeChangedSignal("ProfileReady"):Wait() -- Yield until profile is ready
 	end
-	PlayerData.Data = GetPlayerSave:InvokeServer()
-	ReplicateSaveChange.OnClientEvent:Connect(PlayerData.SetLocalValue)
-	PlayerData.ChangedSignals = {}
-	PlayerData.Ready = true
+	PlayerDataController.Data = GetPlayerSave:InvokeServer()
+	ReplicateSaveChange.OnClientEvent:Connect(PlayerDataController.SetLocalValue)
+	PlayerDataController.ChangedSignals = {}
+	PlayerDataController.Ready = true
 end
 
-return PlayerData
+return PlayerDataController
