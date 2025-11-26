@@ -8,7 +8,7 @@ local StateEnums = {
 
 local GameStates = {
 	[1] = "Intermission",
-	[2] = "Game"z
+	[2] = "Game"
 }
 
 return {

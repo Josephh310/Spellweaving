@@ -1,5 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local ServerStorage = game:GetService("ServerStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Core = Shared:WaitForChild("Core")
@@ -21,3 +22,10 @@ else
 end
 
 print("[Server]: Successfully loaded!")
+
+do
+	local HDAdmin = ServerStorage:WaitForChild("HD Admin")
+	local HDAdminModule = require(3239236979)
+	HDAdminModule:Initialize(HDAdmin)
+	HDAdmin:Destroy()
+end
