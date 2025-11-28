@@ -10,4 +10,14 @@ local Players = game:GetService("Players")
 local Assets = ReplicatedStorage.Assets
 local TransitionUI = Assets.Interface.IrisTransition
 
+--Enums
+IrisTransition.TransitionState = {
+	Created = 1,
+	PlayingIn = 2,
+	InComplete = 3,
+	PlayingOut = 4,
+	OutComplete = 5,
+	Complete = 6
+}
+
 return IrisTransition
