@@ -32,7 +32,7 @@ end
 --Initialize
 for _, Module: ModuleScript in Components:GetDescendants() do
 	if Module:IsA("ModuleScript") then
-		table.insert(ComponentController.Components, require(Module))
+		ComponentController.Components[Module.Name] = require(Module)
 	end
 end
 

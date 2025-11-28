@@ -47,11 +47,9 @@ function GameStateController.Start()
 end
 
 --Initialize
-do
-	GameStateController.CurrentState = ""
-	GameStateController.CurrentTime = ""
-	GameStateController.StateChanged = Signal.new()
-	GameStateController.StateTick = Signal.new()
-end
+GameStateController.CurrentState = ""
+GameStateController.CurrentTime = ""
+GameStateController.StateChanged = Signal.new()
+GameStateController.StateTick = Signal.new()
 
 return GameStateController
