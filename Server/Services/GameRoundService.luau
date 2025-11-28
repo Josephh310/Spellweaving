@@ -58,6 +58,12 @@ local function SelectSpawn(MapID: number)
 	end
 end
 
+local function TogglePortalLock(Enabled: boolean)
+	workspace.Spawn.Portal.LockedDoor.Lock.Decal.Transparency = (Enabled and 0) or 1
+	workspace.Spawn.Portal.LockedDoor.Background.Transparency = (Enabled and 0.8) or 1
+	workspace.Spawn.Portal.LockedDoor.Background.CanCollide = Enabled
+end
+
 local function JoinRound(Player: Player)
 	warn(`{Player} requested to join the round`)
 end
@@ -68,6 +74,7 @@ end
 
 local function StartRound()
 	warn("Round started")
+	TogglePortalLock(false)
 end
 
 local function ObserveGameState(NewState: number)
