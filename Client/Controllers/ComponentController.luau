@@ -29,7 +29,7 @@ function ComponentController.Start()
 	end
 end
 
---Initialize
+
 for _, Module: ModuleScript in Components:GetDescendants() do
 	if Module:IsA("ModuleScript") then
 		ComponentController.Components[Module.Name] = require(Module)

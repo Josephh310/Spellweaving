@@ -60,4 +60,14 @@ do
 	PlayerDataController.Ready = true
 end
 
+function PlayerDataController.Init()
+	if Player:GetAttribute("ProfileReady") ~= true then 
+		Player:GetAttributeChangedSignal("ProfileReady"):Wait() 
+	end
+	PlayerDataController.Data = GetPlayerSave:InvokeServer()
+	ReplicateSaveChange.OnClientEvent:Connect(PlayerDataController.SetLocalValue)
+	PlayerDataController.ChangedSignals = {}
+	PlayerDataController.Ready = true
+end
+
 return PlayerDataController
