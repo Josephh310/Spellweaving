@@ -1,3 +1,14 @@
+--[[
+	@Title: 
+		Player data controller
+	@Author:
+		Joseph (@BreakLoop)
+	@Description:
+		Handles player data on the client
+		Loads player data from the server,
+		Fires signals when player data notably changes
+]]
+
 local PlayerDataController = {}
 
 --Dependancies

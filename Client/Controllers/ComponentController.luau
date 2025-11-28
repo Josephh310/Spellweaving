@@ -1,3 +1,14 @@
+--[[
+	@Title:
+		Client component controller
+	@Author: 
+		Joseph (@BreakLoop)
+	@Desc: 
+		Controller for client components
+		Loads component modules at the start of the game,
+		then observes their corresponding tags and runs the returned observer function
+]]
+
 local ComponentController = {}
 
 --Dependancies

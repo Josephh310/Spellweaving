@@ -1,3 +1,10 @@
+--[[
+	@Title: UI click animation componeny
+	@Author: Joseph (@BreakLoop)
+	@Desc: Handles the click animation for UI buttons.
+	@Tag: UIClickAnimation
+]]
+
 --Dependancies
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
