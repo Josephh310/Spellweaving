@@ -29,10 +29,11 @@ function ComponentController.Start()
 	end
 end
 
-
-for _, Module: ModuleScript in Components:GetDescendants() do
-	if Module:IsA("ModuleScript") then
-		ComponentController.Components[Module.Name] = require(Module)
+function ComponentController.Init()
+	for _, Module: ModuleScript in Components:GetDescendants() do
+		if Module:IsA("ModuleScript") then
+			ComponentController.Components[Module.Name] = require(Module)
+		end
 	end
 end
 
