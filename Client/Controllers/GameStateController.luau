@@ -46,10 +46,11 @@ function GameStateController.Start()
 	Observers.observeProperty(ReplicatedStorage.Values.StateTimer, "Value", ObserveTimer)
 end
 
---Initialize
-GameStateController.CurrentState = ""
-GameStateController.CurrentTime = ""
-GameStateController.StateChanged = Signal.new()
-GameStateController.StateTick = Signal.new()
+function GameStateController.Init()
+	GameStateController.CurrentState = ""
+	GameStateController.CurrentTime = ""
+	GameStateController.StateChanged = Signal.new()
+	GameStateController.StateTick = Signal.new()
+end
 
 return GameStateController
