@@ -23,9 +23,11 @@ local PlayerDataUtils = require(ReplicatedStorage.Shared.Utilities.PlayerDataUti
 --Constants
 local Remotes = ReplicatedStorage.Remotes
 local Events = ReplicatedFirst.Events
+local LoadedData = nil :: {}
+local ChangedSignals = {}
 
---Public functions
-function PlayerDataController.SetLocalValue(Path: {string}, Value: any)
+--Functions
+local function SetLocalValue(Path: {string}, Value: any)
 	local Success = PlayerDataUtils.SetNestedValue(PlayerDataController.Data, Path, Value)
 	if Success ~= true then
 		error(`Unable to set {table.concat(Path, "/")} to value {Value}`)
@@ -37,11 +39,11 @@ function PlayerDataController.SetLocalValue(Path: {string}, Value: any)
 	return true
 end
 
-function PlayerDataController.GetLocalValue(Path: {string}, Value: any)
+local function GetLocalValue(Path: {string}, Value: any)
 	return PlayerDataUtils.GetNestedValue(PlayerDataController.Data, Path, Value)
 end
 
-function PlayerDataController.ConnectToValueChanged(ValueName: string, Callback: () -> ()): Signal.Connection
+local function ConnectToValueChanged(ValueName: string, Callback: () -> ()): Signal.Connection
 	if not PlayerDataController.ChangedSignals[ValueName] then
 		PlayerDataController.ChangedSignals[ValueName] = Signal.new()
 	end
@@ -51,14 +53,12 @@ function PlayerDataController.ConnectToValueChanged(ValueName: string, Callback:
 	end
 end
 
+--Init functions
 function PlayerDataController.Init()
-	if Player:GetAttribute("ProfileReady") ~= true then 
-		Player:GetAttributeChangedSignal("ProfileReady"):Wait() 
-	end
-	PlayerDataController.Data = GetPlayerSave:InvokeServer()
-	ReplicateSaveChange.OnClientEvent:Connect(PlayerDataController.SetLocalValue)
-	PlayerDataController.ChangedSignals = {}
-	PlayerDataController.Ready = true
+	LoadedData = Remotes.GetPlayerSave:InvokeServer()
+	Remotes.ReplicateSaveChange.OnClientEvent:Connect(SetLocalValue)
+	Events.GetLocalStatValue.OnInvoke = GetLocalValue
+	Events.ConnectToStatChanged.OnInvoke = ConnectToValueChanged
 end
 
 return PlayerDataController
