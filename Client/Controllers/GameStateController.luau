@@ -30,10 +30,15 @@ local function ObserveTimer(CurrentTime: number)
 	Events.GameStateTimerChanged:Fire(StoredState, CurrentTime)
 end
 
+local function GetCurrentGameState()
+	return StoredState, StoredTime
+end
+
 ---Functions
 function GameStateController.Start()
 	Observers.observeProperty(ReplicatedStorage.Values.State, "Value", ObserveState)
 	Observers.observeProperty(ReplicatedStorage.Values.StateTimer, "Value", ObserveTimer)
+	Events.GetCurrentGameState.OnInvoke = GetCurrentGameState
 end
 
 return GameStateController
