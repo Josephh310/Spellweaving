@@ -7,16 +7,21 @@
 		Observes the game state replicated by the server,
 		and fires signals when the state notably changes.
 ]]
-
 local GameStateController = {}
 
+--Dependancies
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local Signal = require(ReplicatedStorage.Library.Signal)
 local Observers = require(ReplicatedStorage.Library.Observers)
 local GameStateUtils = require(ReplicatedStorage.Shared.Utilities.GameStateUtils)
---local UserInterfaceController = require(ReplicatedFirst.Client.UserInterfaceController)
 
+--Constants
+local Events = ReplicatedFirst.Events
+local GameStateChanged = Events.GameStateChanged
+local GameStateTimerChanged = Events.GameStateTimerChanged
+
+--local UserInterfaceController = require(ReplicatedFirst.Client.UserInterfaceController)
 --local StateFunctions = {
 --	[GameStateUtils.StateEnums.Intermission] = function()
 --		UserInterfaceController.LoadedControllers["Lobby"].PlayButton:Disable()
@@ -28,29 +33,26 @@ local GameStateUtils = require(ReplicatedStorage.Shared.Utilities.GameStateUtils
 --	end,
 --}
 
+--Helper functions
 local function ObserveState(CurrentState: number)
 	GameStateController.CurrentState = CurrentState
-	GameStateController.StateChanged:Fire(CurrentState)
-	--if StateFunctions[CurrentState] then
-	--	StateFunctions[CurrentState]()
-	--end
+	GameStateChanged:Fire(CurrentState)
 end
 
 local function ObserveTimer(CurrentTime: number)
 	GameStateController.CurrentTime = CurrentTime
-	GameStateController.StateTick:Fire(GameStateController.CurrentState, CurrentTime)
+	GameStateTimerChanged:Fire(GameStateController.CurrentState, CurrentTime)
 end
 
+---Functions
 function GameStateController.Start()
 	Observers.observeProperty(ReplicatedStorage.Values.State, "Value", ObserveState)
 	Observers.observeProperty(ReplicatedStorage.Values.StateTimer, "Value", ObserveTimer)
 end
 
 function GameStateController.Init()
-	GameStateController.CurrentState = ""
-	GameStateController.CurrentTime = ""
-	GameStateController.StateChanged = Signal.new()
-	GameStateController.StateTick = Signal.new()
+	GameStateController.CurrentState = nil :: number
+	GameStateController.CurrentTime = nil :: number
 end
 
 return GameStateController
