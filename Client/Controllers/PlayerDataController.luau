@@ -51,10 +51,9 @@ function PlayerDataController.ConnectToValueChanged(ValueName: string, Callback:
 	end
 end
 
-function PlayerDataController.Init()
-	if Player:GetAttribute("ProfileReady") ~= true then
-		Player:GetAttributeChangedSignal("ProfileReady"):Wait() -- Yield until profile is ready
-	end
+--Initialize
+do
+	if Player:GetAttribute("ProfileReady") ~= true then Player:GetAttributeChangedSignal("ProfileReady"):Wait() end --Yield until profile is ready
 	PlayerDataController.Data = GetPlayerSave:InvokeServer()
 	ReplicateSaveChange.OnClientEvent:Connect(PlayerDataController.SetLocalValue)
 	PlayerDataController.ChangedSignals = {}

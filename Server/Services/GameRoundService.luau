@@ -57,7 +57,8 @@ function RoundService.Start()
 	Observers.observeAttribute(workspace, "State", ObserveGameState)
 end
 
-function RoundService.Init()
+--Initialize
+do
 	RoundService.RoundActive = false
 	RoundService.LastMap = nil
 	RoundService.RoundStarted = Signal.new()

@@ -53,7 +53,8 @@ function GameState.Start()
 	end
 end
 
-function GameState.Init()
+--Initialize
+do
 	GameState.StateChanged = Signal.new()
 	GameState.StateTick = Signal.new()
 	local DefaultState = GameStateUtils.DefaultState

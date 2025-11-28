@@ -30,8 +30,12 @@ function ComponentController.Start()
 	end
 end
 
-function ComponentController.Init()
-	ComponentController.Components = Loader.LoadDirectory(Components, {})
+--Initialize
+do
+	ComponentController.Components = Loader.LoadDirectory(
+		Components,
+		{}
+	)
 end
 
 

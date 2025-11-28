@@ -122,7 +122,8 @@ function PlayerData.ApplyChange(Player: Player, Path: {string}, ChangeCallback: 
 	end
 end
 
-function PlayerData.Init()
+--Initialize
+do
 	if MOCK_STORE_IN_STUDIO and RunService:IsStudio() then
 		PlayerData.DataStore = PlayerData.DataStore.Mock
 	end
