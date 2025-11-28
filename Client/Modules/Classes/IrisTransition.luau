@@ -37,4 +37,15 @@ local DEFAULT_IN_SIZE = UDim2.fromScale(0,0)
 local DEFAULT_OUT_SIZE = UDim2.fromScale(2.5,2.5)
 local DEFAULT_COLOR = Color3.fromRGB(28, 28, 28)
 
+function IrisTransition.new(Config: Configuration)
+	local self = setmetatable(Config, IrisTransition) :: Transition
+	self.State = self.TransitionState.Created
+	self.Instance = TransitionUI:Clone()
+	self.Instance.Enabled = false
+	self.Instance.Parent = Players.LocalPlayer.PlayerGui
+	self.InTween = TweenService:Create(self.Instance.Effect, TweenInfo.new(self.InSpeed or DEFAULT_IN_SPEED), {Size = self.InSize or DEFAULT_IN_SIZE})
+	self.OutTween = TweenService:Create(self.Instance.Effect, TweenInfo.new(self.OutSpeed or DEFAULT_OUT_SPEED), {Size = self.OutSize or DEFAULT_OUT_SIZE})
+	self:SetColor(self.Color or DEFAULT_COLOR)
+	return self
+end
 return IrisTransition
