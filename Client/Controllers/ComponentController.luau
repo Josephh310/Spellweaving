@@ -10,12 +10,11 @@
 ]]
 
 local ComponentController = {}
-ComponentController.Components = {}
+local LoadedComponents = {}
 
 --Dependancies
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
-local Loader = require(ReplicatedStorage.Shared.Core.Loader)
 local Observers = require(ReplicatedStorage.Library.Observers)
 
 --Constants
@@ -24,7 +23,7 @@ local Components = Modules.Components
 
 --Functions
 function ComponentController.Start()
-	for Tag, ObserverFn in ComponentController.Components do
+	for Tag, ObserverFn in LoadedComponents do
 		Observers.observeTag(Tag, ObserverFn)
 	end
 end
@@ -32,7 +31,7 @@ end
 function ComponentController.Init()
 	for _, Module: ModuleScript in Components:GetDescendants() do
 		if Module:IsA("ModuleScript") then
-			ComponentController.Components[Module.Name] = require(Module)
+			LoadedComponents[Module.Name] = require(Module)
 		end
 	end
 end
