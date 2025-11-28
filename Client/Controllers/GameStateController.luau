@@ -1,3 +1,13 @@
+--[[
+	@Title:
+		Client game state controller
+	@Author:
+		Joseph (@BreakLoop)
+	@Description:
+		Observes the game state replicated by the server,
+		and fires signals when the state notably changes.
+]]
+
 local GameStateController = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -5,25 +15,25 @@ local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local Signal = require(ReplicatedStorage.Library.Signal)
 local Observers = require(ReplicatedStorage.Library.Observers)
 local GameStateUtils = require(ReplicatedStorage.Shared.Utilities.GameStateUtils)
-local UserInterfaceController = require(ReplicatedFirst.Client.UserInterfaceController)
+--local UserInterfaceController = require(ReplicatedFirst.Client.UserInterfaceController)
 
-local StateFunctions = {
-	[GameStateUtils.StateEnums.Intermission] = function()
-		UserInterfaceController.LoadedControllers["Lobby"].PlayButton:Disable()
-		UserInterfaceController.LoadedControllers["Lobby"].PlayButton.Instance.BackgroundTransparency = 0.6
-	end,
-	[GameStateUtils.StateEnums.Game] = function()
-		UserInterfaceController.LoadedControllers["Lobby"].PlayButton:Enable()
-		UserInterfaceController.LoadedControllers["Lobby"].PlayButton.Instance.BackgroundTransparency = 0
-	end,
-}
+--local StateFunctions = {
+--	[GameStateUtils.StateEnums.Intermission] = function()
+--		UserInterfaceController.LoadedControllers["Lobby"].PlayButton:Disable()
+--		UserInterfaceController.LoadedControllers["Lobby"].PlayButton.Instance.BackgroundTransparency = 0.6
+--	end,
+--	[GameStateUtils.StateEnums.Game] = function()
+--		UserInterfaceController.LoadedControllers["Lobby"].PlayButton:Enable()
+--		UserInterfaceController.LoadedControllers["Lobby"].PlayButton.Instance.BackgroundTransparency = 0
+--	end,
+--}
 
 local function ObserveState(CurrentState: number)
 	GameStateController.CurrentState = CurrentState
-	GameStateController.StateChanged:Fire(CurrentState)
-	if StateFunctions[CurrentState] then
-		StateFunctions[CurrentState]()
-	end
+	--GameStateController.StateChanged:Fire(CurrentState)
+	--if StateFunctions[CurrentState] then
+	--	StateFunctions[CurrentState]()
+	--end
 end
 
 local function ObserveTimer(CurrentTime: number)
@@ -36,7 +46,8 @@ function GameStateController.Start()
 	Observers.observeAttribute(workspace, "StateTimer", ObserveTimer)
 end
 
-function GameStateController.Init()
+--Initialize
+do
 	GameStateController.CurrentState = ""
 	GameStateController.CurrentTime = ""
 	GameStateController.StateChanged = Signal.new()
