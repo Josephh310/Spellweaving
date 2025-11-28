@@ -21,24 +21,19 @@ local Events = ReplicatedFirst.Events
 
 --Helper functions
 local function ObserveState(CurrentState: number)
-	GameStateController.CurrentState = CurrentState
+	StoredState = CurrentState
 	Events.GameStateChanged:Fire(CurrentState)
 end
 
 local function ObserveTimer(CurrentTime: number)
-	GameStateController.CurrentTime = CurrentTime
-	Events.GameStateTimerChanged:Fire(GameStateController.CurrentState, CurrentTime)
+	StoredTime = CurrentTime
+	Events.GameStateTimerChanged:Fire(StoredState, CurrentTime)
 end
 
 ---Functions
 function GameStateController.Start()
 	Observers.observeProperty(ReplicatedStorage.Values.State, "Value", ObserveState)
 	Observers.observeProperty(ReplicatedStorage.Values.StateTimer, "Value", ObserveTimer)
-end
-
-function GameStateController.Init()
-	GameStateController.CurrentState = nil :: number
-	GameStateController.CurrentTime = nil :: number
 end
 
 return GameStateController
