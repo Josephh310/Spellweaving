@@ -3,6 +3,8 @@ local GameRoundService = {}
 --Dependancies
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local Teams = game:GetService("Teams")
 local GameStateUtils = require(ReplicatedStorage.Shared.Utilities.GameStateUtils)
 local Maps = require(ReplicatedStorage.Shared.Data.Maps)
 
@@ -11,6 +13,8 @@ local Events = ServerScriptService.Events
 local Remotes = ReplicatedStorage.Remotes
 
 --Constants
+local GameTeam = Teams.Game
+local LobbyTeam = Teams.Lobby
 local RoundActive = false
 local MapPool = {} :: {number}
 local LastMap = nil :: number
@@ -24,8 +28,9 @@ local function SelectMap()
 		local NewRandom = Random.new()
 		NewRandom:Shuffle(MapPool)
 	end
-	local Selected = MapPool[1]
-	table.remove(MapPool, 1)
+	local Selected = MapPool[1] do
+		table.remove(MapPool, 1)
+	end
 	return Selected
 end
 
@@ -42,11 +47,8 @@ local function StartRound()
 end
 
 local function ObserveGameState(NewState: number)
-	if NewState == GameStateUtils.StateEnums.Game then
-		StartRound()
-	elseif NewState == GameStateUtils.StateEnums.Intermission then
-		EndRound()
-	end
+	if NewState == GameStateUtils.StateEnums.Game then StartRound() end
+	if NewState == GameStateUtils.StateEnums.Intermission then EndRound() end
 end
 
 --Init functions
