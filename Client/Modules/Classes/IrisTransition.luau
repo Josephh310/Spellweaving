@@ -20,4 +20,13 @@ IrisTransition.TransitionState = {
 	Complete = 6
 }
 
+--Types
+export type Configuration = {
+	InSpeed: number?,
+	OutSpeed: number?,
+	InSize: UDim2?,
+	OutSize: UDim2?,
+	Color: Color3,
+}
+export type Transition = typeof(IrisTransition)
 return IrisTransition
