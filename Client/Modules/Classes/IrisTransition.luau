@@ -78,6 +78,16 @@ function IrisTransition.SetState(self: Transition, State: number)
 	end
 	return self
 end
+
+function IrisTransition.Play(self: Transition, StartingState: number, EndingState: number)
+	StartingState = StartingState or 1
+	EndingState = EndingState or 6
+	for i = StartingState, EndingState do
+		self:SetState(i)
+	end
+	return self
+end
+
 function IrisTransition.new(Config: Configuration)
 	local self = setmetatable(Config, IrisTransition) :: Transition
 	self.State = self.TransitionState.Created
@@ -89,4 +99,5 @@ function IrisTransition.new(Config: Configuration)
 	self:SetColor(self.Color or DEFAULT_COLOR)
 	return self
 end
+
 return IrisTransition
