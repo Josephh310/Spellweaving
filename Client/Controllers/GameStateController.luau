@@ -30,7 +30,7 @@ local GameStateUtils = require(ReplicatedStorage.Shared.Utilities.GameStateUtils
 
 local function ObserveState(CurrentState: number)
 	GameStateController.CurrentState = CurrentState
-	--GameStateController.StateChanged:Fire(CurrentState)
+	GameStateController.StateChanged:Fire(CurrentState)
 	--if StateFunctions[CurrentState] then
 	--	StateFunctions[CurrentState]()
 	--end
@@ -42,8 +42,8 @@ local function ObserveTimer(CurrentTime: number)
 end
 
 function GameStateController.Start()
-	Observers.observeAttribute(workspace, "State", ObserveState)
-	Observers.observeAttribute(workspace, "StateTimer", ObserveTimer)
+	Observers.observeProperty(ReplicatedStorage.Values.State, "Value", ObserveState)
+	Observers.observeProperty(ReplicatedStorage.Values.StateTimer, "Value", ObserveTimer)
 end
 
 --Initialize
