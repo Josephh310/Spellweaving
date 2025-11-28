@@ -14,10 +14,6 @@ local PlayerDataController = {}
 --Dependancies
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
-local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
-local Observers = require(ReplicatedStorage.Library.Observers)
-local Signal = require(ReplicatedStorage.Library.Signal)
 local PlayerDataUtils = require(ReplicatedStorage.Shared.Utilities.PlayerDataUtils)
 
 --Constants
@@ -28,28 +24,28 @@ local ChangedSignals = {}
 
 --Functions
 local function SetLocalValue(Path: {string}, Value: any)
-	local Success = PlayerDataUtils.SetNestedValue(PlayerDataController.Data, Path, Value)
+	local Success = PlayerDataUtils.SetNestedValue(LoadedData, Path, Value)
 	if Success ~= true then
 		error(`Unable to set {table.concat(Path, "/")} to value {Value}`)
 	end
 	local PrimaryPath = Path[1]
-	if PlayerDataController.ChangedSignals[PrimaryPath] then
-		PlayerDataController.ChangedSignals[PrimaryPath]:Fire(Value)
+	if ChangedSignals[PrimaryPath] then
+		ChangedSignals[PrimaryPath]:Fire(Value)
 	end
 	return true
 end
 
 local function GetLocalValue(Path: {string}, Value: any)
-	return PlayerDataUtils.GetNestedValue(PlayerDataController.Data, Path, Value)
+	return PlayerDataUtils.GetNestedValue(LoadedData, Path, Value)
 end
 
 local function ConnectToValueChanged(ValueName: string, Callback: () -> ()): Signal.Connection
-	if not PlayerDataController.ChangedSignals[ValueName] then
-		PlayerDataController.ChangedSignals[ValueName] = Signal.new()
+	if not ChangedSignals[ValueName] then
+		ChangedSignals[ValueName] = Instance.new("BindableEvent")
 	end
 	if Callback then
-		Callback(PlayerDataController.Data[ValueName])
-		return PlayerDataController.ChangedSignals[ValueName]:Connect(Callback)
+		Callback(LoadedData[ValueName])
+		return ChangedSignals[ValueName].Event:Connect(Callback)
 	end
 end
 
