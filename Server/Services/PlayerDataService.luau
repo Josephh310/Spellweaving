@@ -2,40 +2,34 @@ local PlayerData = {}
 
 --Dependancies
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
-
 local ProfileStore = require(ReplicatedStorage.Library.ProfileStore)
-local Observers = require(ReplicatedStorage.Library.Observers)
-local Signal = require(ReplicatedStorage.Library.Signal)
 local PlayerStats = require(ReplicatedStorage.Shared.Data.PlayerStats)
 local PlayerDataUtils = require(ReplicatedStorage.Shared.Utilities.PlayerDataUtils)
 
---Remotes
+--Directories
 local Remotes = ReplicatedStorage.Remotes
-local GetPlayerSave = Remotes.GetPlayerSave
-local ReplicateSaveChange = Remotes.ReplicateSaveChange
+local Events = ServerScriptService.Events
 
---Vars
-PlayerData.DataStore = ProfileStore.New("DataStore", PlayerStats.Template)
-PlayerData.Profiles = {} :: {[Player]: Profile}
+--Values
+local DataStore = ProfileStore.New("DataStore", PlayerStats.Template)
+local Profiles = {} :: {[Player]: Profile}
+local MOCK_STORE_IN_STUDIO = false
 
 --Types
 export type Profile = ProfileStore.Profile<typeof(PlayerStats.Template)>
 
---Config
-local MOCK_STORE_IN_STUDIO = false
-
---Private functions
+--Functions
 local function InitProfile(Player: Player, Profile: Profile)
 	Profile:Reconcile()
 	Profile.OnSessionEnd:Connect(function()
-		PlayerData.Profiles[Player] = nil
+		Profiles[Player] = nil
 		Player:Kick("Profile session ended, please rejoin.")
 	end)
 	if Player.Parent == Players then
-		PlayerData.Profiles[Player] = Profile
-		Player:SetAttribute("ProfileReady", true)
+		Profiles[Player] = Profile
 	else
 		Profile:EndSession()
 	end
@@ -43,7 +37,7 @@ end
 
 local function LoadProfile(Player: Player)
 	local ProfileKey = tostring(Player.UserId)
-	local NewProfile = PlayerData.DataStore:StartSessionAsync(ProfileKey)
+	local NewProfile = DataStore:StartSessionAsync(ProfileKey)
 	if NewProfile == nil then
 		Player:Kick("Profile load failed, please rejoin.")
 		return;
@@ -52,18 +46,22 @@ local function LoadProfile(Player: Player)
 end
 
 local function RemoveProfile(Player: Player)
-	local PlayerProfile = PlayerData.Profiles[Player]
+	local PlayerProfile = Profiles[Player]
 	if PlayerProfile ~= nil then
 		PlayerProfile:EndSession()
 	end
 end
 
-local function CriticalStatusChanged(IsCritical: boolean)
-	if IsCritical == true then
-		print(`ProfileStore entered critical state`)
-	else
-		print(`ProfileStore critical state is over`)
+local function GetProfile(Player: Player)
+	if not Profiles[Player] then
+		repeat task.wait() until Profiles[Player] ~= nil
 	end
+	return Profiles[Player].Data
+end
+
+local function GetValue(Player: Player, Path: {string})
+	local PlayerSave = GetProfile(Player)
+	return PlayerDataUtils.GetNestedValue(PlayerSave, Path)
 end
 
 local function CreateLeaderstats(Player: Players)
@@ -72,7 +70,33 @@ local function CreateLeaderstats(Player: Players)
 	for Index, Leaderstat in PlayerStats.Leaderstats do
 		local LeaderstatValue = Instance.new("IntValue", leaderstats)
 		LeaderstatValue.Name = Leaderstat
-		LeaderstatValue.Value = PlayerData.GetValue(Player, {Leaderstat})
+		LeaderstatValue.Value = GetValue(Player, {Leaderstat})
+	end
+end
+
+local function SetValue(Player: Player, Path: {string}, Value: any)
+	local PlayerSave = GetProfile(Player)
+	local Success = PlayerDataUtils.SetNestedValue(PlayerSave, Path, Value)
+	if Success ~= true then
+		error(`Unable to set {table.concat(Path, "/")} to value {Value}`)
+		return;
+	end
+	Remotes.ReplicateSaveChange:FireClient(Player, Path, Value)
+	if #Path == 1 then
+		local leaderstat = Player.leaderstats:FindFirstChild(Path[1])
+		if leaderstat then
+			leaderstat.Value = Value
+		end
+	end
+	return true
+end
+
+local function ApplyChange(Player: Player, Path: {string}, ChangeCallback: () -> (), ...)
+	local PlayerProfile = Profiles[Player]
+	if PlayerProfile and PlayerProfile:IsActive() then
+		local PathValue = GetValue(Player, Path)
+		local NewValue = ChangeCallback(PathValue, ...)
+		SetValue(Player, Path, NewValue)
 	end
 end
 
@@ -87,52 +111,31 @@ local function PlayerRemoved(Player: Player)
 	RemoveProfile(Player)
 end
 
---Public functions
-function PlayerData.GetProfile(Player: Player)
-	return PlayerData.Profiles[Player].Data
+local function CriticalStatusChanged(IsCritical: boolean)
+	if IsCritical == true then
+		print(`ProfileStore entered critical state`)
+	else
+		print(`ProfileStore critical state is over`)
+	end
 end
 
-function PlayerData.GetValue(Player: Player, Path: {string})
-	local PlayerSave = PlayerData.GetProfile(Player)
-	return PlayerDataUtils.GetNestedValue(PlayerSave, Path)
-end
-
-function PlayerData.SetValue(Player: Player, Path: {string}, Value: any)
-	local PlayerSave = PlayerData.GetProfile(Player)
-	local Success = PlayerDataUtils.SetNestedValue(PlayerSave, Path, Value)
-	if Success ~= true then
-		error(`Unable to set {table.concat(Path, "/")} to value {Value}`)
+--Init functions
+function PlayerData.Start()
+	for _, Player in Players:GetPlayers() do 
+		PlayerAdded(Player) 
 	end
-	ReplicateSaveChange:FireClient(Player, Path, Value)
-	if #Path == 1 then
-		local leaderstat = Player.leaderstats:FindFirstChild(Path[1])
-		if leaderstat then
-			leaderstat.Value = Value
-		end
-	end
-	return true
-end
-
-function PlayerData.ApplyChange(Player: Player, Path: {string}, ChangeCallback: () -> (), ...)
-	local PlayerProfile = PlayerData.Profiles[Player]
-	if PlayerProfile and PlayerProfile:IsActive() then
-		local PathValue = PlayerData.GetValue(Player, Path)
-		local NewValue = ChangeCallback(PathValue, ...)
-		PlayerData.SetValue(Player, Path, NewValue)
-	end
+	Players.PlayerAdded:Connect(PlayerAdded)
+	Players.PlayerRemoving:Connect(PlayerRemoved)
 end
 
 function PlayerData.Init()
 	if MOCK_STORE_IN_STUDIO and RunService:IsStudio() then
-		PlayerData.DataStore = PlayerData.DataStore.Mock
+		DataStore = DataStore.Mock
 	end
-	GetPlayerSave.OnServerInvoke = PlayerData.GetProfile
+	Events.GetPlayerData.OnInvoke = GetValue
+	Events.ChangePlayerData.OnInvoke = ApplyChange
+	Remotes.GetPlayerSave.OnServerInvoke = GetProfile
 	ProfileStore.OnCriticalToggle:Connect(CriticalStatusChanged)
-	for _, Player in Players:GetPlayers() do
-		PlayerAdded(Player)
-	end
-	Players.PlayerAdded:Connect(PlayerAdded)
-	Players.PlayerRemoving:Connect(PlayerRemoved)
 end
 
 return PlayerData
