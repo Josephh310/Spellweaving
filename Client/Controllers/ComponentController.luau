@@ -32,10 +32,7 @@ end
 
 --Initialize
 do
-	ComponentController.Components = Loader.LoadDirectory(
-		Components,
-		{}
-	)
+	ComponentController.Components = Loader.LoadDirectory(Components,{})
 end
 
 
