@@ -1,4 +1,4 @@
-local GameState = {}
+local GameStateService = {}
 
 --Dependancies
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -26,7 +26,7 @@ local function DecreaseStateTimer(CurrentState: number, CurrentTime: number)
 end
 
 --Init functions
-function GameState.Start()
+function GameStateService.Start()
 	--Main game loop
 	while task.wait(1) do
 		local CurrentState = ReplicatedStorage.Values.State.Value
@@ -39,10 +39,10 @@ function GameState.Start()
 	end
 end
 
-function GameState.Init()
+function GameStateService.Init()
 	local DefaultState = GameStateUtils.DefaultState
 	ReplicatedStorage.Values.State.Value = DefaultState
 	ReplicatedStorage.Values.StateTimer.Value = GameStateUtils.StateInfo[DefaultState].Duration
 end
 
-return GameState
+return GameStateService

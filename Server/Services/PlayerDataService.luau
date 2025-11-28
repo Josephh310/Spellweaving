@@ -1,4 +1,4 @@
-local PlayerData = {}
+local PlayerDataService = {}
 
 --Dependancies
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -120,7 +120,7 @@ local function CriticalStatusChanged(IsCritical: boolean)
 end
 
 --Init functions
-function PlayerData.Start()
+function PlayerDataService.Start()
 	for _, Player in Players:GetPlayers() do 
 		PlayerAdded(Player) 
 	end
@@ -128,7 +128,7 @@ function PlayerData.Start()
 	Players.PlayerRemoving:Connect(PlayerRemoved)
 end
 
-function PlayerData.Init()
+function PlayerDataService.Init()
 	if MOCK_STORE_IN_STUDIO and RunService:IsStudio() then
 		DataStore = DataStore.Mock
 	end
@@ -138,4 +138,4 @@ function PlayerData.Init()
 	ProfileStore.OnCriticalToggle:Connect(CriticalStatusChanged)
 end
 
-return PlayerData
+return PlayerDataService
