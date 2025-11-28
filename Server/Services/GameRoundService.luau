@@ -70,6 +70,11 @@ end
 
 local function EndRound()
 	warn("Round ended")
+	for _, Player in Players:GetPlayers() do
+		Player.Team = Teams.Lobby
+		Player.Character:MoveTo(workspace.Spawn.SpawnLocation.Position + Vector3.new(0, 10, 0))
+	end
+	TogglePortalLock(true)
 end
 
 local function StartRound()
