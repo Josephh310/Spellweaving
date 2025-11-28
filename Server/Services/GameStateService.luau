@@ -9,24 +9,8 @@ local GameStateUtils = require(ReplicatedStorage.Shared.Utilities.GameStateUtils
 local Values = ReplicatedStorage.Values
 local Events = ServerScriptService.Events
 
---[[local StateFunctions = {
-	[GameStateUtils.StateEnums.Intermission] = function()
-		for _, Player in Players:GetPlayers() do
-			Player.Team = Teams.Lobby
-			Player.Character:MoveTo(workspace.Spawn.SpawnLocation.Position + Vector3.new(0, 10, 0))
-		end
-		workspace.Spawn.Portal.LockedDoor.Lock.Decal.Transparency = 0
-		workspace.Spawn.Portal.LockedDoor.Background.Transparency = 0.8
-		workspace.Spawn.Portal.LockedDoor.Background.CanCollide = true
-	end,
-	[GameStateUtils.StateEnums.Game] = function()
-		workspace.Spawn.Portal.LockedDoor.Lock.Decal.Transparency = 1
-		workspace.Spawn.Portal.LockedDoor.Background.Transparency = 1
-		workspace.Spawn.Portal.LockedDoor.Background.CanCollide = false
-	end,
-}]]
-
-function GameState.TransitionStates(CurrentState: number)
+--Functions
+local function TransitionStates(CurrentState: number)
 	local CurrentStateInfo = GameStateUtils.StateInfo[CurrentState]
 	local NextState = CurrentStateInfo.NextState
 	local NextStateInfo = GameStateUtils.StateInfo[NextState]
