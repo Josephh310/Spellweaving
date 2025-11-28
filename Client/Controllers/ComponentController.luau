@@ -10,6 +10,7 @@
 ]]
 
 local ComponentController = {}
+ComponentController.Components = {}
 
 --Dependancies
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -23,17 +24,16 @@ local Components = Modules.Components
 
 --Functions
 function ComponentController.Start()
-	print(ComponentController.Components)
 	for Tag, ObserverFn in ComponentController.Components do
-		warn(Tag)
 		Observers.observeTag(Tag, ObserverFn)
 	end
 end
 
 --Initialize
-do
-	ComponentController.Components = Loader.LoadDirectory(Components,{})
+for _, Module: ModuleScript in Components:GetDescendants() do
+	if Module:IsA("ModuleScript") then
+		table.insert(ComponentController.Components, require(Module))
+	end
 end
-
 
 return ComponentController
