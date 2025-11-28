@@ -8,6 +8,7 @@ local Loader = require(Core.Loader)
 
 local function InitializeServer()
 	local Services = Loader.LoadDirectory(script, {})
+	Loader.BatchCall(Services, "Init", false)
 	Loader.BatchCall(Services, "Start", true)
 end
 
