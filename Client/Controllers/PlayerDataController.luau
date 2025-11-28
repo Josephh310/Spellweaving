@@ -13,16 +13,16 @@ local PlayerDataController = {}
 
 --Dependancies
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local Observers = require(ReplicatedStorage.Library.Observers)
 local Signal = require(ReplicatedStorage.Library.Signal)
 local PlayerDataUtils = require(ReplicatedStorage.Shared.Utilities.PlayerDataUtils)
 
---Remotes
+--Constants
 local Remotes = ReplicatedStorage.Remotes
-local GetPlayerSave = Remotes.GetPlayerSave
-local ReplicateSaveChange = Remotes.ReplicateSaveChange
+local Events = ReplicatedFirst.Events
 
 --Public functions
 function PlayerDataController.SetLocalValue(Path: {string}, Value: any)

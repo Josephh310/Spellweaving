@@ -18,8 +18,6 @@ local GameStateUtils = require(ReplicatedStorage.Shared.Utilities.GameStateUtils
 
 --Constants
 local Events = ReplicatedFirst.Events
-local GameStateChanged = Events.GameStateChanged
-local GameStateTimerChanged = Events.GameStateTimerChanged
 
 --local UserInterfaceController = require(ReplicatedFirst.Client.UserInterfaceController)
 --local StateFunctions = {
@@ -36,12 +34,12 @@ local GameStateTimerChanged = Events.GameStateTimerChanged
 --Helper functions
 local function ObserveState(CurrentState: number)
 	GameStateController.CurrentState = CurrentState
-	GameStateChanged:Fire(CurrentState)
+	Events.GameStateChanged:Fire(CurrentState)
 end
 
 local function ObserveTimer(CurrentTime: number)
 	GameStateController.CurrentTime = CurrentTime
-	GameStateTimerChanged:Fire(GameStateController.CurrentState, CurrentTime)
+	Events.GameStateTimerChanged:Fire(GameStateController.CurrentState, CurrentTime)
 end
 
 ---Functions
