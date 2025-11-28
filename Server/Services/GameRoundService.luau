@@ -16,6 +16,18 @@ local MapPool = {} :: {number}
 local LastMap = nil :: number
 
 --Functions
+local function SelectMap()
+	if #MapPool == 0 then
+		for Index, Value in Maps do
+			table.insert(MapPool, Index)
+		end
+		local NewRandom = Random.new()
+		NewRandom:Shuffle(MapPool)
+	end
+	local Selected = MapPool[1]
+	table.remove(MapPool, 1)
+	return Selected
+end
 
 local function JoinRound(Player: Player)
 	warn(`{Player} requested to join the round`)
