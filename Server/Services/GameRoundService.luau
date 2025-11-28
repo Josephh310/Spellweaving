@@ -34,6 +34,30 @@ local function SelectMap()
 	return Selected
 end
 
+local function SelectSpawn(MapID: number)
+	local SpawnFolder = Maps[MapID].Spawns
+	local SelectedSpawn = nil :: BasePart
+	local BestDistance = math.huge
+	for _, PlayerSpawn in SpawnFolder:GetChildren() do
+		local CombinedDistance = 0
+		for _, Player in GameTeam:GetPlayers() do
+			local Character = Player.Character
+			if not Character then
+				return;
+			end
+			local Root = Character.PrimaryPart
+			if not Root then
+				return;
+			end
+			CombinedDistance += (Root.Position - PlayerSpawn.Position).Magnitude
+		end
+		if CombinedDistance < BestDistance then
+			SelectedSpawn = PlayerSpawn
+			BestDistance = CombinedDistance
+		end
+	end
+end
+
 local function JoinRound(Player: Player)
 	warn(`{Player} requested to join the round`)
 end
