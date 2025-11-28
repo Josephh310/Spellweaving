@@ -19,21 +19,22 @@ local function TransitionStates(CurrentState: number)
 	Events.GameStateChanged:Fire(NextState)
 end
 
-function GameState.DecreaseStateTimer(CurrentState: number, CurrentTime: number)
+local function DecreaseStateTimer(CurrentState: number, CurrentTime: number)
 	local NewTime = CurrentTime - 1
 	ReplicatedStorage.Values.StateTimer.Value = NewTime
 	Events.GameStateTimerChanged:Fire(CurrentState, NewTime)
 end
 
+--Init functions
 function GameState.Start()
 	--Main game loop
 	while task.wait(1) do
 		local CurrentState = ReplicatedStorage.Values.State.Value
 		local CurrentTimer = ReplicatedStorage.Values.StateTimer.Value
 		if (CurrentTimer - 1) < 0 then
-			GameState.TransitionStates(CurrentState)
+			TransitionStates(CurrentState)
 		else
-			GameState.DecreaseStateTimer(CurrentState, CurrentTimer)
+			DecreaseStateTimer(CurrentState, CurrentTimer)
 		end
 	end
 end
