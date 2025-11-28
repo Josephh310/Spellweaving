@@ -1,11 +1,14 @@
 local GameState = {}
 
+--Dependancies
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Teams = game:GetService("Teams")
 local GameStateUtils = require(ReplicatedStorage.Shared.Utilities.GameStateUtils)
 local Signal = require(ReplicatedStorage.Library.Signal)
 
+--Constants
+local Values = ReplicatedStorage.Values
 local StateFunctions = {
 	[GameStateUtils.StateEnums.Intermission] = function()
 		for _, Player in Players:GetPlayers() do
@@ -27,8 +30,8 @@ function GameState.TransitionStates(CurrentState: number)
 	local CurrentStateInfo = GameStateUtils.StateInfo[CurrentState]
 	local NextState = CurrentStateInfo.NextState
 	local NextStateInfo = GameStateUtils.StateInfo[NextState]
-	workspace:SetAttribute("State", NextState)
-	workspace:SetAttribute("StateTimer", NextStateInfo.Duration)
+	ReplicatedStorage.Values.State.Value = NextState
+	ReplicatedStorage.Values.StateTimer.Value = NextStateInfo.Duration
 	GameState.StateChanged:Fire(NextState)
 	if StateFunctions[NextState] then
 		StateFunctions[NextState]()
@@ -37,14 +40,14 @@ end
 
 function GameState.DecreaseStateTimer(CurrentState: number, CurrentTime: number)
 	local NewTime = CurrentTime - 1
-	workspace:SetAttribute("StateTimer", NewTime)
+	ReplicatedStorage.Values.StateTimer.Value = NewTime
 	GameState.StateTick:Fire(CurrentState, NewTime)
 end
 
 function GameState.Start()
 	while task.wait(1) do
-		local CurrentState = workspace:GetAttribute("State")
-		local CurrentTimer = workspace:GetAttribute("StateTimer")
+		local CurrentState = ReplicatedStorage.Values.State.Value
+		local CurrentTimer = ReplicatedStorage.Values.StateTimer.Value
 		if (CurrentTimer - 1) < 0 then
 			GameState.TransitionStates(CurrentState)
 		else
@@ -58,8 +61,8 @@ do
 	GameState.StateChanged = Signal.new()
 	GameState.StateTick = Signal.new()
 	local DefaultState = GameStateUtils.DefaultState
-	workspace:SetAttribute("State", DefaultState)
-	workspace:SetAttribute("StateTimer", GameStateUtils.StateInfo[DefaultState].Duration)
+	ReplicatedStorage.Values.State.Value = DefaultState
+	ReplicatedStorage.Values.StateTimer.Value = GameStateUtils.StateInfo[DefaultState].Duration
 	if StateFunctions[GameStateUtils.DefaultState] then
 		StateFunctions[GameStateUtils.DefaultState]()
 	end
