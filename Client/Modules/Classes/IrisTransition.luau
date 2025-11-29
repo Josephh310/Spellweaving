@@ -100,6 +100,7 @@ function IrisTransition.Play(self: Transition, StartingState: number, EndingStat
 end
 
 function IrisTransition.new(Config: Configuration)
+	Config = Config or {}
 	local self = setmetatable(Config, IrisTransition) :: Transition
 	self.State = self.TransitionState.Created
 	self.Instance = TransitionUI:Clone()
