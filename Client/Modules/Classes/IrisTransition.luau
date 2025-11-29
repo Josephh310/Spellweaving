@@ -55,6 +55,17 @@ function IrisTransition.SetColor(self: Transition, Color: Color3)
 	return self
 end
 
+function IrisTransition.SetTransparency(self: Transition, Transparency: number)
+	self.Instance.Effect.ImageTransparency = Transparency
+	for _, Frame: Frame in self.Instance.Effect:GetChildren() do
+		if not Frame:IsA("Frame") then
+			return;
+		end
+		Frame.Transparency = Transparency
+	end 
+	return self
+end
+
 function IrisTransition.SetState(self: Transition, State: number)
 	self.CurrentState = State
 	if State == 1 then
