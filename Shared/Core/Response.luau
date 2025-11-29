@@ -86,3 +86,14 @@ function ResponseModule.Unpack(EncodedBuffer: buffer)
 	return {Code = ResponseCode, Message = ResponseMessage}
 end
 
+function ResponseModule.Return(Response: ResponsePacket)
+	local CodeEnum = Response.Code
+	local Message = Response.Message
+	if typeof(CodeEnum) ~= "number" then
+		return ResponseModule.Pack {Code = ResponseModule.Codes.NoCodeProvided}
+	end
+	if not ResponseModule.Messages[CodeEnum] then
+		return ResponseModule.Pack {Code = ResponseModule.Codes.InvalidCode}
+	end
+	return ResponseModule.Pack(Response)
+end
