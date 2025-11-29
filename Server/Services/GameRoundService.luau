@@ -15,6 +15,7 @@ local Remotes = ReplicatedStorage.Remotes
 --Constants
 local GameTeam = Teams.Game
 local LobbyTeam = Teams.Lobby
+local NewRandom = Random.new()
 local RoundActive = false
 local MapPool = {} :: {number}
 local LastMap = nil :: number
@@ -25,11 +26,10 @@ local function SelectMap()
 		for Index, Value in Maps do
 			table.insert(MapPool, Index)
 		end
-		local NewRandom = Random.new()
-		NewRandom:Shuffle(MapPool)
 	end
-	local Selected = MapPool[1] do
-		table.remove(MapPool, 1)
+	local MapID = NewRandom:NextInteger(1, #MapPool)
+	local Selected = MapPool[MapID] do
+		table.remove(MapPool, MapID)
 	end
 	return Selected
 end
