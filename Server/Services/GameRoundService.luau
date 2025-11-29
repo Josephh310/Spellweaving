@@ -69,7 +69,6 @@ local function JoinRound(Player: Player)
 end
 
 local function EndRound()
-	warn("Round ended")
 	for _, Player in Players:GetPlayers() do
 		if Player.Team ~= LobbyTeam then
 			continue;
@@ -81,7 +80,6 @@ local function EndRound()
 end
 
 local function StartRound()
-	warn("Round started")
 	TogglePortalLock(false)
 end
 
@@ -96,7 +94,7 @@ function GameRoundService.Start()
 end
 
 function GameRoundService.Init()
-	Remotes.JoinRound.OnServerEvent:Connect(JoinRound)
+	Remotes.PlayerJoinRound.OnServerInvoke = JoinRound
 end
 
 return GameRoundService
