@@ -97,3 +97,5 @@ function ResponseModule.Return(Response: ResponsePacket)
 	end
 	return ResponseModule.Pack(Response)
 end
+
+return ResponseModule
