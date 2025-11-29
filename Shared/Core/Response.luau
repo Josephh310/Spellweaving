@@ -57,3 +57,8 @@ ResponseModule.Messages = {
 	[602] = "UnableToPack"
 }
 
+--Types
+export type ResponsePacket = {
+	Code: number,
+	Message: string,
+}
