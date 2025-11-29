@@ -65,10 +65,13 @@ local function TogglePortalLock(Enabled: boolean)
 end
 
 local function JoinRound(Player: Player)
-	warn(`{Player} requested to join the round`)
+	if not RoundActive then
+		
+	end
 end
 
 local function EndRound()
+	RoundActive = false
 	for _, Player in Players:GetPlayers() do
 		if Player.Team ~= LobbyTeam then
 			continue;
@@ -80,6 +83,7 @@ local function EndRound()
 end
 
 local function StartRound()
+	RoundActive = true
 	TogglePortalLock(false)
 end
 
