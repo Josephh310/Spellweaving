@@ -62,6 +62,8 @@ export type ResponsePacket = {
 	Code: number,
 	Message: string,
 }
+
+--Functions
 function ResponseModule.Pack(Response: ResponsePacket)
 	local Success, Result = pcall(function()
 		local Code = Response.Code
@@ -76,3 +78,11 @@ function ResponseModule.Pack(Response: ResponsePacket)
 	if not Success then return ResponseModule.Pack {Code = ResponseModule.Codes.UnableToPack, Message = Result} end
 	return Result
 end
+
+function ResponseModule.Unpack(EncodedBuffer: buffer)
+	local ResponseCode = buffer.readu16(EncodedBuffer, 0)
+	local ResponseMessageBytes = buffer.readu8(EncodedBuffer, 2)
+	local ResponseMessage = buffer.readstring(EncodedBuffer, 3, ResponseMessageBytes)
+	return {Code = ResponseCode, Message = ResponseMessage}
+end
+
